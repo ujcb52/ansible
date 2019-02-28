@@ -1,0 +1,44 @@
+    - name: check grub2.cfg
+      stat:
+        path: /etc/grub2.cfg
+      register: result1
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: delete grub2.cfg
+      file:
+        path: /etc/
+        state: absent
+      register: result2
+      when: 
+        - ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+        - result1
+        - result1.stat.islnk == "False"
+
+    - name: link grub2.cfg
+      file:
+        src: /boot/grub2/grub.cfg 
+        dest: /etc/grub2.cfg
+        state: link
+      when: result2 | changed
+
+    - name: elevator=deadline
+      command: grubby --update-kernel=ALL --args="elevator=deadline"
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: non ssd config disable
+      copy:
+        src: 99-ssd.rules
+        dest: /etc/udev/rules.d/99-ssd.rules
+        mode: 0644
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: check display config - rc.local
+      shell: cat /etc/rc.d/rc.local |grep /sys/module/drm_kms_helper/parameters/poll |grep -v ^#
+      register: display
+#      failed_when: "'FAILED' in display.stderr"
+      ignore_errors: yes
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: input display config
+      shell: echo "echo N > /sys/module/drm_kms_helper/parameters/poll" >> /etc/rc.d/rc.local
+      when: display | failed and ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

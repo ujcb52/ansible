@@ -1,0 +1,67 @@
+    - name: default rpms install - qemu
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "epel-release", vers : ""}
+        - { name : "gcc", vers : ""}
+        - { name : "zlib-devel", vers : ""}
+        - { name : "zlib", vers : ""}
+        - { name : "glib2-devel", vers : ""}
+        - { name : "make", vers : ""}
+        - { name : "autoconf", vers : ""}
+        - { name : "automake", vers : ""}
+        - { name : "libtool", vers : ""}
+        - { name : "libcap-devel", vers : ""}
+        - { name : "libattr-devel", vers : ""}
+        - { name : "libpciaccess-devel", vers : ""}
+        - { name : "libpciaccess", vers : ""}
+        - { name : "bzip2", vers : ""}
+        - { name : "libaio-devel", vers : ""}
+        - { name : "libiscsi-devel", vers : ""}
+        - { name : "pixman-devel", vers : ""}
+        - { name : "flex", vers : ""}
+        - { name : "bison", vers : ""}
+
+    - name: qemu version check
+      command: /usr/bin/qemu-system-x86_64 --version |grep 3.0.0
+      register: qemuvers
+      ignore_errors: True
+
+    - name: untar qemu-3.0.0
+      unarchive:
+        src: qemu-3.0.0.tar.xz
+        dest: /usr/local/src/
+      when: qemuvers | failed or
+            qemuvers.stdout.find('3.0.0') == -1
+
+    - name: qemu compile1
+      command: make clean
+      args:
+       chdir: /usr/local/src/qemu-3.0.0/
+#      when: result1.stat.exists == false
+      ignore_errors: True
+      when: qemuvers | failed or
+            qemuvers.stdout.find('3.0.0') == -1
+
+    - name: qemu compile2
+      command: ./configure --prefix=/usr --cc=gcc --enable-vhost-net --disable-xen --disable-user --disable-linux-user --disable-bsd-user --enable-virtfs --enable-attr --enable-debug --enable-linux-aio --enable-guest-agent --enable-libiscsi
+      args:
+        chdir: /usr/local/src/qemu-3.0.0/
+      when: qemuvers | failed or
+            qemuvers.stdout.find('3.0.0') == -1
+
+    - name: qemu compile3
+      command: "make -j 8"
+      args:
+        chdir: /usr/local/src/qemu-3.0.0/
+      when: qemuvers | failed or
+            qemuvers.stdout.find('3.0.0') == -1
+
+    - name: qemu compile4
+      command: make install
+      args:
+       chdir: /usr/local/src/qemu-3.0.0/
+      when: qemuvers | failed or
+            qemuvers.stdout.find('3.0.0') == -1
+

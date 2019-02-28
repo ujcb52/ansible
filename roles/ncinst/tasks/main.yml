@@ -1,0 +1,67 @@
+#import_tasks: bonding.yml
+- name: install default rpms
+  import_tasks: default_rpms.yml
+- name: nc server default_settings
+  import_tasks: default_settings.yml
+- name: private gw set - rc.local
+  import_tasks: privategw.yml
+- name: chrony settings
+  import_tasks: chrony.yml
+- name: safe rm install and setting
+  import_tasks: saferm.yml
+- name: sudoers setting
+  import_tasks: sudoers.yml
+- name: admin account add
+  import_tasks: adduser.yml
+- name: sshd_config setting
+  import_tasks: sshd.yml
+- name: limits.conf setting
+  import_tasks: limits.yml
+- name: limits.conf setting
+  import_tasks: sysctl.yml
+- name: munin install and setting
+  import_tasks: munin.yml
+- name: rrdapi install 
+  import_tasks: rrdapi_inst.yml
+- name: network_scripts install
+  import_tasks: network_scripts.yml
+- name: iptables setting
+  import_tasks: iptables.yml
+- name: rsyslog setting
+  import_tasks: rsyslog.yml
+- name: crontab setting
+  import_tasks: crontab.yml
+- name: cpulimit install
+  import_tasks: cpulimit.yml
+- name: ssd-tune setting
+  import_tasks: ssd-tune.yml
+- name: dell-raid install
+  import_tasks: dell-raid.yml
+  when: ansible_system_vendor == "Dell Inc."
+- name: sms monitoring install
+  import_tasks: sms.yml
+- name: enable module
+  import_tasks: module.yml
+#- name: qemu 2.4.1 install
+#  import_tasks: qemu-2.4.1.yml
+#- name: libvirt 1.2.18 install
+#  import_tasks: libvirt-1.2.18.yml
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+#
+#- name: qemu 3.0.0 install
+#  import_tasks: qemu-3.0.0.yml
+
+- name: qemu 2.12.1 install
+  import_tasks: qemu-2.12.1.yml
+
+#- name: libvirt 4.7.0 install
+#  import_tasks: libvirt-4.7.0.yml
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+- name: libvirt 4.6.0 install
+  import_tasks: libvirt-4.6.0.yml
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+- name: libvirt 2.5.0 install
+  import_tasks: libvirt-2.5.0.yml
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"

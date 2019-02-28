@@ -1,0 +1,11 @@
+    - name: copy /etc/security/limits.conf - centos6 -
+      copy:
+        src: limits.conf
+        dest: /etc/security/limits.conf
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: copy /etc/security/limits.conf - centos7 -
+      copy:
+        src: limits.conf
+        dest: /etc/security/limits.conf
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

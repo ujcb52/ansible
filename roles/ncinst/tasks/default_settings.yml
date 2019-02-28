@@ -1,0 +1,53 @@
+    - name: CentOS 6 Servive enabled
+      service:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('started', true) }}"
+        enabled: "{{ item.enabled | default ('yes', true) }}"
+      with_items:
+#        - { name : "ksm", vers : "stopped", enabled : "no"}
+#        - { name : "ksmtuned", vers : "stopped", enabled : "no"}
+        - { name : "iptables", vers : "started", enabled : "yes"} 
+        - { name : "snmpd", vers : "started", enabled : "yes"}
+        - { name : "httpd", vers : "started", enabled : "yes"}
+        - { name : "chronyd", vers : "started", enabled : "yes"} 
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: CentOS 7 Service enabled
+      service:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('started', true) }}"
+        enabled: "{{ item.enabled | default ('yes', true) }}"
+      with_items:
+        - { name : "firewalld", vers : "stopped", enabled : "no"}
+#        - { name : "ksm", vers : "stopped", enabled : "no"}
+#        - { name : "ksmtuned", vers : "stopped", enabled : "no"}
+        - { name : "iptables", vers : "started", enabled : "yes"}
+        - { name : "snmpd", vers : "started", enabled : "yes"}
+        - { name : "httpd", vers : "started", enabled : "yes"}
+        - { name : "chronyd", vers : "started", enabled : "yes"}
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: CentOS 7 chmod rc.local
+      file:
+        path: /etc/rc.d/rc.local
+        mode: +x
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: bash_profile
+      copy: dest=/root/.bash_profile src=bash_profile mode=644
+
+    - name: copy history 
+      copy: dest=/etc/profile.d/history.sh src=history.sh mode=644
+
+    - name: edit PROFILE - HISTSIZE
+      shell: sed -i 's/HISTSIZE=1000/HISTSIZE=10000/g' /etc/profile
+
+    - name: bash_profile check
+      shell: cat /root/.bash_profile |grep 'export PS1'
+      register: bash_check
+      ignore_errors: True
+
+    - name: bash_profile set
+      shell: echo "export PS1='\[\033[01;31m\]\h \e[0m[\e[1;33m\u\e[0m@\e[1;36m\h\e[0m \w] \n# \[\033[00m\]'" >> /root/.bash_profile
+      when: bash_check | failed
+ 

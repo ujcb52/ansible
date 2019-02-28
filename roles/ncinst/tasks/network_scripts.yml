@@ -1,0 +1,26 @@
+    - name: create packet log directory 
+      file:
+        path: /var/log/gcloud/packet
+        state: directory
+
+    - name: create network_packet directory
+      file:
+        path: /home/network_packet
+        state: directory
+
+#    - name: Unarchive a file that needs to be downloaded (added in 2.0)
+#      unarchive:
+#        src: /home/ujcb52/ansible/roles/ncinst/files/network_packet.tar.gz
+#        dest: /home/network_packet
+
+    - name : copy network_packet.sh
+      copy:
+        src: /home/ujcb52/ansible/roles/ncinst/files/network_packet.sh
+        dest: /home/network_packet/
+        mode: 755
+
+    - name : copy mysql_conn.inc.sh
+      copy:
+        src: /home/ujcb52/ansible/roles/ncinst/files/mysql_conn.inc.sh
+        dest: /home/network_packet/
+        mode: 644

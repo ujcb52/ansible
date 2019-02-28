@@ -1,0 +1,4 @@
+- name: qemu 3.0.0 install
+  import_tasks: qemu-3.0.0.yml
+- name: libvirt 4.7.0 install
+  import_tasks: libvirt-4.7.0.yml

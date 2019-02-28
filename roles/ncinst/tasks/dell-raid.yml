@@ -1,0 +1,63 @@
+    - name: snmp rpms install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "epel-release", vers : ""}
+        - { name : "net-snmp", vers : ""}
+
+    - name: copy MegaCli rpm
+      copy:
+        src: MegaCli-8.07.14-1.noarch.rpm
+        dest: /usr/local/src
+      when: ansible_system_vendor == "Dell Inc."
+
+    - name: install megacli
+      yum:
+        name: /usr/local/src/MegaCli-8.07.14-1.noarch.rpm
+        state: present
+      when: ansible_system_vendor == "Dell Inc."
+
+    - name: megacli symlink 
+      file:
+        src: /opt/MegaRAID/MegaCli/MegaCli64
+        dest: /usr/bin/MegaCli64
+        state: link
+      when: ansible_system_vendor == "Dell Inc."
+
+    - name: create MegaRAID_snmp_agent Directory
+      file:
+        path: /usr/local/src/MegaRAID_snmp_agent
+        state: directory
+      when: ansible_system_vendor == "Dell Inc."
+
+    - name: LSI snmp agent install - MSM
+      unarchive:
+        src: MSM_linux_x64_installer-15.08.01-02.tar.gz
+        dest: /usr/local/src/MegaRAID_snmp_agent/
+      when: ansible_system_vendor == "Dell Inc."
+
+    - name: install MSM1
+      yum:
+        name: /usr/local/src/MegaRAID_snmp_agent/disk/sas_ir_snmp-15.08-0102.x86_64.rpm
+        state: present
+      when: ansible_system_vendor == "Dell Inc."
+
+    - name: install MSM2
+      yum:
+        name: /usr/local/src/MegaRAID_snmp_agent/disk/sas_snmp-15.08-0102.x86_64.rpm
+        state: present
+      when: ansible_system_vendor == "Dell Inc."
+
+    - name: edit MSM config
+      shell: sed -i "99i proc lsi_mrdsnmpagen 2   1" /etc/snmp/snmpd.conf
+      when: ansible_system_vendor == "Dell Inc."
+
+    - name: service daemon reload - centos7 systemctl -
+      systemd:
+        daemon_reload: yes
+      when:
+        - ansible_system_vendor == "Dell Inc."
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
+

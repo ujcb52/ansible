@@ -1,0 +1,28 @@
+    - name: /bin/rm file type perl check
+      command: file /bin/rm
+      register: result1
+      ignore_errors: true
+
+    - name: move /bin/rm /bin/rm-orig
+      command: mv -f /bin/rm /bin/rm-orig
+      register: result2
+      when: '"perl" not in result1.stdout|lower'
+
+    - name: copy safe rm file
+      copy:
+        src: rm
+        dest: /bin/rm
+        mode: 755
+      when: result2
+
+    - name: CentOS 6 copy safe-rm.conf
+      copy:
+        src: safe-rm.conf.centos6
+        dest: /etc/safe-rm.conf
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: CentOS 7 copy safe-rm.conf
+      copy:
+        src: safe-rm.conf.centos7
+        dest: /etc/safe-rm.conf
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

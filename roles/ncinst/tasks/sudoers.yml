@@ -1,0 +1,5 @@
+    - name: copy safe rm file
+      copy:
+        src: sudoers
+        dest: /etc/sudoers
+        mode: 0440

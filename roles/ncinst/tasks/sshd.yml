@@ -1,0 +1,11 @@
+    - name: copy /etc/ssh/sshd_config - centos6 -
+      copy:
+        src: sshd_config_centos6
+        dest: /etc/ssh/sshd_config
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: copy /etc/ssh/sshd_config - centos6 -
+      copy:
+        src: sshd_config_centos7
+        dest: /etc/ssh/sshd_config
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

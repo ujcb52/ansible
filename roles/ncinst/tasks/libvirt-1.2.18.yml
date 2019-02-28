@@ -1,0 +1,125 @@
+    - name: default rpms install - libvirt
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "epel-release", vers : ""}
+        - { name : "yajl-devel", vers : ""}
+        - { name : "libxml2-devel", vers : ""}
+        - { name : "libxml2", vers : ""}
+        - { name : "gnutls-devel", vers : ""}
+        - { name : "device-mapper-devel", vers : ""}
+        - { name : "python-devel", vers : ""}
+        - { name : "libnl-devel", vers : ""}
+        - { name : "intltool.noarch", vers : ""}
+        - { name : "gcc", vers : ""}
+        - { name : "libpciaccess-devel", vers : ""}
+        - { name : "xhtml1-dtds", vers : ""}
+        - { name : "libxslt-devel", vers : ""}
+        - { name : "dnsmasq", vers : ""}
+
+    - name: libvirt version check
+      command: /usr/sbin/libvirtd --version |grep 1.2.18
+      register: libvers
+      ignore_errors: True
+
+    - name: untar libvirt 1.2.18 - centos7 -
+      unarchive:
+        src: libvirt-1.2.18.tar.gz
+        dest: /usr/local/src/
+      when: libvers | failed or
+            libvers.stdout.find('1.2.18') == -1
+    - name: libvirt compile1
+      command: make clean
+      args:
+       chdir: /usr/local/src/libvirt-1.2.18/
+#      when: result1.stat.exists == false
+      ignore_errors: True
+      when: libvers | failed or
+            libvers.stdout.find('1.2.18') == -1
+
+    - name: libvirt compile2
+      command: ./configure --prefix=/usr --with-vmware=no --with-vbox=no --with-test=no --with-selinux=no
+      args:
+        chdir: /usr/local/src/libvirt-1.2.18/
+      when: libvers | failed or
+            libvers.stdout.find('1.2.18') == -1
+
+    - name: libvirt compile3
+      command: "make -j 8"
+      args:
+        chdir: /usr/local/src/libvirt-1.2.18/
+      when: libvers | failed or
+            libvers.stdout.find('1.2.18') == -1
+
+    - name: libvirt compile4
+      command: make install
+      args:
+       chdir: /usr/local/src/libvirt-1.2.18/
+      register: libcompile
+      when: libvers | failed or
+            libvers.stdout.find('1.2.18') == -1
+
+    - name: check ld.so.conf
+      shell: cat /etc/ld.so.conf |grep "/usr/lib"
+      register: display
+      ignore_errors: yes
+      when: libcompile
+
+    - name: input ld.so.conf config
+      shell: echo "/usr/lib" >> /etc/ld.so.conf
+      when:
+        - libcompile
+        - display | failed
+
+    - name: run ldconfig
+      command: ldconfig
+      when: display | failed 
+
+    - name: copy /etc/sysconfig/libvirtd
+      copy:
+        src: libvirtd
+        dest: /etc/sysconfig/libvirtd
+      when: libcompile | changed
+
+    - name: copy /etc/libvirt/libvirtd.conf
+      copy:
+        src: libvirtd.conf_ssd
+        dest: /etc/libvirt/libvirtd.conf
+      register: copy_libvirtdconf
+      when: libcompile | changed
+
+    - name: check libvirtd.conf -1-
+      shell: cat /etc/libvirt/libvirtd.conf |grep -i listen_addr |grep -v '#'
+      register: libvirtd_ip
+      ignore_errors: yes
+      when: copy_libvirtdconf | changed
+
+    - name: check libvirtd.conf -2-
+      shell: echo 'listen_addr = "{{ ansible_eth0.ipv4.address }}"' >> /etc/libvirt/libvirtd.conf   
+      when: 
+        - libvirtd_ip | failed
+        - copy_libvirtdconf | changed
+
+    - name: service daemon reload
+      systemd:
+        daemon_reload: yes
+      when:
+        - libcompile
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
+
+    - name: service daemon restart
+      service:
+        name: libvirtd
+        state: restarted
+        enabled: yes
+      when: libcompile
+
+    - name: libvirt default bridge destroy
+      command: virsh net-destroy default
+      when: libcompile
+
+    - name: libvirt default bridge disable
+      command: virsh net-undefine default
+      when: libcompile

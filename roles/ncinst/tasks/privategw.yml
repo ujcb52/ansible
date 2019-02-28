@@ -1,0 +1,12 @@
+    - name: private gw check
+      shell: cat /etc/rc.local |grep -v ^# |grep 'ip route add 172.16.143.0/24 via 172.17.7.1 dev eth0'
+      register: gw_check
+      ignore_errors: True
+
+    - name: private gw set
+      shell: echo "{{ item.name}}" >> /etc/rc.local
+      when: gw_check | failed
+      with_items:
+        - { name : "" }
+        - { name : "#private GW" }
+        - { name : "ip route add 172.16.143.0/24 via 172.17.7.1 dev eth0" }

@@ -1,0 +1,12 @@
+    - name: copy crontab file
+      copy:
+        src: crontab_ssd
+        dest: /var/spool/cron/root
+      register: result1
+
+#    - name: crond serivce enable
+#      service:
+#        name: crond
+#        state: restarted
+#        enabled: yes
+#      when: result1 | changed

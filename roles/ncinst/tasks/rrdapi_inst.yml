@@ -1,0 +1,19 @@
+#    - name: rrd_api check
+#      file:
+#        src: source/rrd_api/
+#        dest: /rrd_api/
+#        state: directory
+#        recurse: yes
+#      register: result1
+
+#    - name: rrd_api.tar.gz copy
+#      copy:
+#        src: source/rrd_api.tar.gz
+#        dest: /
+#      when: result1 | changed
+
+    - name: Unarchive a file that needs to be downloaded (added in 2.0)
+      unarchive:
+        src: rrd_api.tar.gz
+        dest: /
+#      when: result1 | changed

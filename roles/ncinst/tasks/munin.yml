@@ -1,0 +1,32 @@
+    - name: munin rpm install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "epel-release", vers : "" }
+        - { name : "munin", vers : ""}
+        - { name : "munin-node", vers : ""}
+
+    - name: copy munin-node.conf
+      copy:
+        src: munin-node.conf
+        dest: /etc/munin/munin-node.conf
+      register: result1
+
+    - name: copy munin-htpasswd
+      copy:
+        src: munin-htpasswd
+        dest: /etc/munin/munin-htpasswd
+      register: result2
+
+    - name: create /var/www/html/munin
+      file:
+        path: /var/www/html/munin
+        state: directory
+
+    - name: munin-node serivce enable
+      service:
+        name: munin-node
+        state: restarted
+        enabled: yes
+      when: result1 | changed or result2 | changed

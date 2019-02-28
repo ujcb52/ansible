@@ -1,0 +1,9 @@
+---
+
+- hosts: "{{ host }}"
+#  become: yes
+  tasks:
+    - name: copy safe rm file
+      copy:
+        src: bashrc
+        dest: /root/.bashrc

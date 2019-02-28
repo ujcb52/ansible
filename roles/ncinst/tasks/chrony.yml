@@ -1,0 +1,40 @@
+    - name: chrony install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      register: resutl2
+      with_items:
+        - { name : "epel-release", vers : "" }
+        - { name : "chrony", vers : ""}
+
+    - name: copy chrony.conf
+      copy:
+        src: chrony.conf.centos6
+        dest: /etc/chrony.conf
+      register: result1
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: copy chrony.conf
+      copy:
+        src: chrony.conf.centos7
+        dest: /etc/chrony.conf
+      register: result1
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: CentOS 6 Servive enabled
+      service:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('started', true) }}"
+        enabled: "{{ item.enabled | default ('yes', true) }}"
+      with_items:
+        - { name : "chronyd", vers : "restarted", enabled : "yes"}
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: CentOS 7 Service enabled
+      service:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('started', true) }}"
+        enabled: "{{ item.enabled | default ('yes', true) }}"
+      with_items:
+        - { name : "chronyd", vers : "restarted", enabled : "yes"}
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

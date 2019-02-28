@@ -1,0 +1,38 @@
+    - name: gcc rpm install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "epel-release", vers : "" }
+        - { name : "gcc", vers : ""}
+    
+    - name: check cpulimt file
+      stat:
+        path: /usr/bin/cpulimit
+      register: result1
+
+    - name: Unarchive a file that needs to be downloaded (added in 2.0)
+      unarchive:
+        src: cpulimit-0.2.tar.gz
+        dest: /usr/local/src
+      when: result1.stat.exists == false
+
+    - name: compile1
+      command: make clean
+      args:
+       chdir: /usr/local/src/cpulimit-0.2/
+      when: result1.stat.exists == false
+
+    - name: compile2
+      command: make -j 4
+      args:
+       chdir: /usr/local/src/cpulimit-0.2/
+      when: result1.stat.exists == false
+
+    - name: copy cpulimit file
+      copy:
+        src: /usr/local/src/cpulimit-0.2/src/cpulimit
+        dest: /usr/bin/cpulimit
+        remote_src: yes
+        mode: 755
+      when: result1.stat.exists == false

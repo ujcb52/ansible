@@ -1,0 +1,109 @@
+    - name: common rpms install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "epel-release", vers : ""}
+        - { name : "wget", vers : ""}
+        - { name : "dhcp-devel", vers : ""}
+        - { name : "dhcp", vers : ""}
+        - { name : "dhcping", vers : ""}
+        - { name : "vconfig", vers : ""}
+        - { name : "bridge-utils", vers : ""}
+        - { name : "ebtables", vers : ""}
+        - { name : "dnsmasq", vers : ""}
+        - { name : "rsync", vers : ""}
+        - { name : "java-1.8.0-openjdk.x86_64", vers : ""}
+        - { name : "ruby", vers : ""}
+        - { name : "libdbi", vers : ""}
+        - { name : "libdbi-drivers", vers : ""}
+        - { name : "libdbi-dbd-pgsql", vers : ""}
+        - { name : "libdbi-devel", vers : ""}
+        - { name : "libdbi-dbd-sqlite", vers : ""}
+        - { name : "libdbi-dbd-mysql", vers : ""}
+        - { name : "libnetfilter_log", vers : ""}
+        - { name : "libnetfilter_conntrack", vers : ""}
+        - { name : "libnfnetlink", vers : ""}
+        - { name : "net-snmp", vers : ""}
+        - { name : "net-snmp-libs", vers : ""}
+        - { name : "net-snmp-utils", vers : ""}
+        - { name : "freeipmi", vers : ""}
+        - { name : "OpenIPMI", vers : ""}
+        - { name : "conntrack-tools", vers : ""}
+        - { name : "bash", vers : ""}
+        - { name : "openssl", vers : ""}
+        - { name : "openssh", vers : ""}
+        - { name : "openssh-clients", vers : ""}
+        - { name : "glibc", vers : ""}
+        - { name : "sysstat", vers : ""}
+        - { name : "vim", vers : ""}
+        - { name : "xorg-x11-xauth", vers : ""}
+        - { name : "xorg-x11-fonts-Type1", vers : ""}
+        - { name : "libuser", vers : ""}
+        - { name : "libvirt-client", vers : ""}
+        - { name : "libvirt-python", vers : ""}
+        - { name : "virt-install", vers : ""}
+        - { name : "httpd-devel", vers : ""}
+        - { name : "httpd", vers : ""}
+        - { name : "php-devel", vers : ""}
+        - { name : "php", vers : ""}
+        - { name : "php-common", vers : ""}
+        - { name : "php-pear", vers : ""}
+        - { name : "php-mysql", vers : ""}
+        - { name : "rrdtool-devel", vers : ""}
+        - { name : "rrdtool", vers : ""}
+        - { name : "rrdtool-perl", vers : ""}
+        - { name : "rrdtool-php", vers : ""}
+        - { name : "rrdtool-devel", vers : ""}
+        - { name : "rrdtool", vers : ""}
+        - { name : "mcelog", vers : ""}
+        - { name : "rdate", vers : ""}
+        - { name : "chrony", vers : ""}
+        - { name : "iotop", vers : ""}
+        - { name : "htop", vers : ""}
+        - { name : "virt-top", vers : ""}
+        - { name : "dstat", vers : ""}
+        - { name : "nmap", vers : ""}
+        - { name : "telnet", vers : ""}
+        - { name : "tcpdump", vers : ""}
+        - { name : "munin", vers : ""}
+        - { name : "munin-node", vers : ""}
+        - { name : "perl-Net-CIDR", vers : ""}
+        - { name : "perl-XML-SAX", vers : ""}
+        - { name : "ipset", vers : ""}
+        - { name : "nfs-utils", vers : ""}
+        - { name : "unzip", vers : ""}
+        - { name : "pm-utils", vers : ""}
+        - { name : "libguestfs-tools", vers : ""}
+        - { name : "lynx", vers : ""}
+
+    - name: CentOS 6 Default rpms install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "ld-linux.so.2", vers : ""}
+        - { name : "portreserve", vers : ""}
+        - { name : "mysql", vers : ""}
+        - { name : "tightvnc", vers : ""}
+        - { name : "nc", vers : ""}
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: CentOS 7 default rpms install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "ntsysv", vers : ""}
+        - { name : "iptables-services", vers : ""}
+        - { name : "dhclient", vers : ""}
+        - { name : "dhcping", vers : ""}
+        - { name : "dhcp-libs", vers : ""}
+        - { name : "net-tools", vers : ""}
+        - { name : "psmisc", vers : ""}
+        - { name : "mariadb", vers : ""}
+        - { name : "tigervnc", vers : ""}
+        - { name : "net-snmp-agent-libs", vers : ""}
+        - { name : "nmap-ncat", vers : ""}
+        - { name : "psmisc", vers : ""}
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

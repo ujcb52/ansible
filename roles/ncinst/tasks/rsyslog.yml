@@ -1,0 +1,20 @@
+    - name: copy rsyslog config file
+      copy:
+        src: rsyslog.conf-nc-centos6
+        dest: /etc/rsyslog.conf
+      register: result1
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: copy rsyslog config file
+      copy:
+        src: rsyslog_ssd.conf
+        dest: /etc/rsyslog.conf
+      register: result1
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: rsyslog serivce enable
+      service:
+        name: rsyslog
+#        state: restarted
+        enabled: yes
+      when: result1 | changed

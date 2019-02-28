@@ -1,0 +1,43 @@
+    - name: default snmp rpms install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "epel-release", vers : ""}
+        - { name : "net-snmp", vers : ""}
+        - { name : "freeipmi", vers : ""}
+        - { name : "OpenIPMI", vers : ""}
+
+    - name: centos7 snmp install
+      yum:
+        name: "{{ item.name }}"
+        state: "{{ item.vers | default('latest', true) }}"
+      with_items:
+        - { name : "net-snmp-agent-libs", vers : ""}
+        - { name : "net-snmp-utils", vers : ""}
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: gabia sms repo copy
+      copy:
+        src: gabmon.repo
+        dest: /etc/yum.repos.d/
+
+    - name: instamm snmp_extend
+      yum:
+        name: snmp_extend
+        state: present
+
+    - name: check snmp config
+      shell: cat /etc/sysconfig/snmpd |grep -v ^# |grep "\-LS0\-2d"
+      register: snmpconfig
+      ignore_errors: yes
+
+    - name: edit snmp config
+      shell: echo 'OPTIONS="-LS0-2d"' >> /etc/sysconfig/snmpd
+      when: snmpconfig | failed
+
+    - name: snmp service enable
+      service:
+        name: snmpd
+        enabled: yes
+

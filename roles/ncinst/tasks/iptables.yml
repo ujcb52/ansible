@@ -1,0 +1,12 @@
+    - name: copy iptables file
+      copy:
+        src: iptables_2nd
+        dest: /etc/sysconfig/iptables
+      register: result1
+
+    - name: iptables serivce enable
+      service:
+        name: iptables
+#        state: restarted
+        enabled: yes
+      when: result1 | changed

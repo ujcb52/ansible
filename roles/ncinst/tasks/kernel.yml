@@ -1,0 +1,15 @@
+    - name: check default grub config
+      shell: cat /etc/default/grub |grep "GRUB_CMDLINE_LINUX" |grep "scsi_mod.use_blk_mq=y\|dm_mod.use_blk_mq=y"
+      register: grub_conf
+      ignore_errors: yes
+
+    - name: check qemu.conf -2-
+      shell: echo "sed -i
+      when:
+        - grub_conf | failed
+
+
+#    - name: edit MSM config
+#      shell: sed -i "99i proc lsi_mrdsnmpagen 2   1" /etc/snmp/snmpd.conf
+#      when: ansible_system_vendor == "Dell Inc."
+

@@ -1,0 +1,36 @@
+    - name: Add the kvm module
+      modprobe:
+        name: kvm
+        state: present
+
+    - name: Add the kvm_intel module
+      modprobe:
+        name: kvm_intel
+        state: present
+
+    - name: Add the br_netfilter module
+      modprobe:
+        name: br_netfilter
+        state: present
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: copy /etc/modules-load.d/br_netfilter.conf
+      copy:
+        src: br_netfilter.conf
+        dest: /etc/modules-load.d/br_netfilter.conf
+        mode: 644
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: copy /etc/sysconfig/modules/kvm.modules
+      copy:
+        src: kvm.modules
+        dest: /etc/sysconfig/kvm.modules
+        mode: 755
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+    - name: copy /etc/sysconfig/modules/bridge.modules
+      copy:
+        src: bridge.modules
+        dest: /etc/sysconfig/bridge.modules
+        mode: 755
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
